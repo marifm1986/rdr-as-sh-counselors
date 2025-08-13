@@ -1,4 +1,3 @@
-import { MenuIcon } from 'lucide-react';
 import { useContactForm } from './ContactFormProvider';
 export function Header() {
   const {
@@ -24,13 +23,13 @@ export function Header() {
               Testimonials
             </a>
           </nav>
-          <button onClick={openContactForm} className="bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+          <button onClick={openContactForm} className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition duration-300">
             Contact Us
           </button>
         </div>
         <div className="md:hidden">
-          <button className="p-2 text-white">
-            <MenuIcon size={24} />
+          <button onClick={openContactForm} className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+            Contact Us
           </button>
         </div>
       </div>

@@ -47,7 +47,7 @@ export function Services() {
         <div className="text-center mt-20">
           <button
             onClick={openContactForm}
-            className="bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-4 rounded-md transition duration-300"
+            className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition duration-300"
           >
             See how much you can save
           </button>

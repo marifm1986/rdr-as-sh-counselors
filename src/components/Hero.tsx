@@ -8,7 +8,8 @@ export const EMAILJS_TEMPLATE_ID = 'template_a38o3v9';
 export const EMAILJS_USER_ID = 'SLZXO8rySdneEkfDW';
 export function Hero() {
   const {
-    openContactForm
+    openContactForm,
+    showSuccessModal
   } = useContactForm();
   const [formData, setFormData] = useState({
     firstName: '',
@@ -19,6 +20,7 @@ export function Hero() {
     state: '',
     consent: false
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const {
       name,
@@ -37,6 +39,8 @@ export function Hero() {
   };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    
     const templateParams = {
       to_email: 'oxaleinfo@gmail.com',
       emailSubject: `Request a Quote Mail from SHCounselors | Royal Debt Relief`,
@@ -56,12 +60,24 @@ export function Hero() {
       templateParams,
       EMAILJS_USER_ID
     )
-      .then((res) => {
-        alert("Successfully Submitted")
+      .then(() => {
+        // Reset form data after successful submission
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          debtAmount: '',
+          state: '',
+          consent: false
+        });
+        setIsSubmitting(false);
+        // Show success modal after successful submission
+        showSuccessModal();
       })
       .catch((err) => {
         console.error('Error sending email:', err);
-
+        setIsSubmitting(false);
       });
   };
   return <section className="w-full relative pt-28 pb-20 md:pt-36 md:pb-28">
@@ -84,7 +100,7 @@ export function Hero() {
               in as little as 24-48 months with a one-time low monthly payment
               plan. No Up Front fees and no Obligation.
             </p>
-            <button className="bg-amber-500 hover:bg-amber-600 text-white font-medium py-3 px-8 rounded-md transition duration-300 text-lg" onClick={openContactForm}>
+            <button className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-8 rounded-md transition duration-300 text-lg" onClick={openContactForm}>
               Start Living Debt Free
             </button>
           </AnimatedElement>
@@ -96,39 +112,39 @@ export function Hero() {
               Get Free Quote
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="firstName" className="block text-slate-700 mb-1 text-sm">
                     First Name*
                   </label>
-                  <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" required />
+                  <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500" required />
                 </div>
                 <div>
                   <label htmlFor="lastName" className="block text-slate-700 mb-1 text-sm">
                     Last Name*
                   </label>
-                  <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" required />
+                  <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500" required />
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="email" className="block text-slate-700 mb-1 text-sm">
                     Email Address*
                   </label>
-                  <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" required />
+                  <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500" required />
                 </div>
                 <div>
                   <label htmlFor="phone" className="block text-slate-700 mb-1 text-sm">
                     Phone Number*
                   </label>
-                  <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="(123) 456-7890" className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500" required />
+                  <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="(123) 456-7890" className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500" required />
                 </div>
               </div>
               <div>
                 <label htmlFor="debtAmount" className="block text-slate-700 mb-1 text-sm">
                   Total Debt Amount*
                 </label>
-                <select id="debtAmount" name="debtAmount" value={formData.debtAmount} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 appearance-none bg-white" required>
+                <select id="debtAmount" name="debtAmount" value={formData.debtAmount} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 appearance-none bg-white" required>
                   <option value="">Select your debt amount</option>
                   {debtAmounts.map(amount => <option key={amount} value={amount}>
                     {amount}
@@ -139,7 +155,7 @@ export function Hero() {
                 <label htmlFor="state" className="block text-slate-700 mb-1 text-sm">
                   State*
                 </label>
-                <select id="state" name="state" value={formData.state} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 appearance-none bg-white" required>
+                <select id="state" name="state" value={formData.state} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 appearance-none bg-white" required>
                   <option value="">Select your state</option>
                   {usStates.map(state => <option key={state} value={state}>
                     {state}
@@ -152,8 +168,26 @@ export function Hero() {
                   I consent to receive calls and SMS from SH Counselors.*
                 </label>
               </div> */}
-              <button type="submit" className="w-full bg-amber-500 hover:bg-amber-600 text-white font-medium py-2.5 px-6 rounded-md transition duration-300 text-lg">
-                Get Free Debt Relief Quote
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className={`w-full font-medium py-2.5 px-6 rounded-md transition duration-300 text-lg ${
+                  isSubmitting 
+                    ? 'bg-orange-400 cursor-not-allowed' 
+                    : 'bg-orange-500 hover:bg-orange-600'
+                } text-white`}
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Sending...
+                  </div>
+                ) : (
+                  'Get Free Debt Relief Quote'
+                )}
               </button>
             </form>
           </div>

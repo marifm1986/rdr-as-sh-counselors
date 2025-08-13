@@ -72,7 +72,7 @@ export function ContactSection() {
                 </div>
               </div>
             </div>
-            <button className="mt-8 bg-amber-500 hover:bg-amber-600 text-white font-medium py-3 px-6 rounded-md transition duration-300" onClick={openContactForm}>
+            <button className="mt-8 bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-md transition duration-300" onClick={openContactForm}>
               Explore Our Services
             </button>
           </div>

@@ -1,6 +1,7 @@
 import emailjs from 'emailjs-com';
 import React, { useEffect, useState } from 'react';
 import { XIcon } from 'lucide-react';
+import { useContactForm } from './ContactFormProvider';
 // US states array for the dropdown
 export const usStates = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
 // Debt amount options
@@ -16,6 +17,7 @@ export function ContactFormModal({
   isOpen,
   onClose
 }: ContactFormModalProps) {
+  const { showSuccessModal } = useContactForm();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -25,6 +27,7 @@ export function ContactFormModal({
     state: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   useEffect(() => {
     if (isOpen) {
       // Prevent background scrolling when modal is open
@@ -56,21 +59,6 @@ export function ContactFormModal({
       });
     }
   };
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      consent: e.target.checked
-    }));
-    if (errors.consent) {
-      setErrors(prev => {
-        const newErrors = {
-          ...prev
-        };
-        delete newErrors.consent;
-        return newErrors;
-      });
-    }
-  };
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
@@ -82,7 +70,9 @@ export function ContactFormModal({
     }
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
-    } else if (!/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/.test(formData.phone)) {
+    } else if (
+      !/^(\+1\s?)?(\(?[0-9]{3}\)?)[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/.test(formData.phone)
+    ) {
       newErrors.phone = 'Please enter a valid phone number';
     }
     if (!formData.debtAmount) newErrors.debtAmount = 'Please select your debt amount';
@@ -93,8 +83,7 @@ export function ContactFormModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      // setIsSubmitting(true);
-      // setSubmitError(false);
+      setIsSubmitting(true);
 
       const templateParams = {
         to_email: 'oxaleinfo@gmail.com',
@@ -115,16 +104,24 @@ export function ContactFormModal({
         templateParams,
         EMAILJS_USER_ID
       )
-        .then((res) => {
-
-          setTimeout(() => {
-            onClose();
-
-          }, 2000);
+        .then(() => {
+          // Reset form data after successful submission
+          setFormData({
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            debtAmount: '',
+            state: '',
+          });
+          setErrors({});
+          setIsSubmitting(false);
+          // Show success modal after successful submission
+          showSuccessModal();
         })
         .catch((err) => {
           console.error('Error sending email:', err);
-
+          setIsSubmitting(false);
         });
       // // Form submission logic would go here
       // console.log('Form submitted:', formData);
@@ -148,12 +145,12 @@ export function ContactFormModal({
           contact you to discuss your options.
         </p>
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label htmlFor="firstName" className="block text-sm font-medium text-slate-700 mb-1">
                 First Name*
               </label>
-              <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} className={`w-full px-4 py-2 border ${errors.firstName ? 'border-red-500' : 'border-slate-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500`} />
+              <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} className={`w-full px-4 py-2 border ${errors.firstName ? 'border-red-500' : 'border-slate-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500`} />
               {errors.firstName && <p className="mt-1 text-sm text-red-500">
                 {errors.firstName}
               </p>}
@@ -162,23 +159,23 @@ export function ContactFormModal({
               <label htmlFor="lastName" className="block text-sm font-medium text-slate-700 mb-1">
                 Last Name*
               </label>
-              <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} className={`w-full px-4 py-2 border ${errors.lastName ? 'border-red-500' : 'border-slate-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500`} />
+              <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} className={`w-full px-4 py-2 border ${errors.lastName ? 'border-red-500' : 'border-slate-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500`} />
               {errors.lastName && <p className="mt-1 text-sm text-red-500">{errors.lastName}</p>}
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
                 Email Address*
               </label>
-              <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} className={`w-full px-4 py-2 border ${errors.email ? 'border-red-500' : 'border-slate-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500`} />
+              <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} className={`w-full px-4 py-2 border ${errors.email ? 'border-red-500' : 'border-slate-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500`} />
               {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
             </div>
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-1">
                 Phone Number*
               </label>
-              <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} className={`w-full px-4 py-2 border ${errors.phone ? 'border-red-500' : 'border-slate-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500`} placeholder="(123) 456-7890" />
+              <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} className={`w-full px-4 py-2 border ${errors.phone ? 'border-red-500' : 'border-slate-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500`} placeholder="(123) 456-7890" />
               {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone}</p>}
             </div>
           </div>
@@ -186,7 +183,7 @@ export function ContactFormModal({
             <label htmlFor="debtAmount" className="block text-sm font-medium text-slate-700 mb-1">
               Total Debt Amount*
             </label>
-            <select id="debtAmount" name="debtAmount" value={formData.debtAmount} onChange={handleChange} className={`w-full px-4 py-2 border ${errors.debtAmount ? 'border-red-500' : 'border-slate-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500`}>
+            <select id="debtAmount" name="debtAmount" value={formData.debtAmount} onChange={handleChange} className={`w-full px-4 py-2 border ${errors.debtAmount ? 'border-red-500' : 'border-slate-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500`}>
               <option value="">Select your debt amount</option>
               {debtAmounts.map(amount => <option key={amount} value={amount}>
                 {amount}
@@ -198,7 +195,7 @@ export function ContactFormModal({
             <label htmlFor="state" className="block text-sm font-medium text-slate-700 mb-1">
               State*
             </label>
-            <select id="state" name="state" value={formData.state} onChange={handleChange} className={`w-full px-4 py-2 border ${errors.state ? 'border-red-500' : 'border-slate-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500`}>
+            <select id="state" name="state" value={formData.state} onChange={handleChange} className={`w-full px-4 py-2 border ${errors.state ? 'border-red-500' : 'border-slate-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500`}>
               <option value="">Select your state</option>
               {usStates.map(state => <option key={state} value={state}>
                 {state}
@@ -206,8 +203,26 @@ export function ContactFormModal({
             </select>
             {errors.state && <p className="mt-1 text-sm text-red-500">{errors.state}</p>}
           </div>
-          <button type="submit" className="w-full bg-amber-500 hover:bg-amber-600 text-white font-medium py-3 px-6 rounded-md transition duration-300">
-            Get Free Debt Relief Quote
+          <button 
+            type="submit" 
+            disabled={isSubmitting}
+            className={`w-full font-medium py-3 px-6 rounded-md transition duration-300 ${
+              isSubmitting 
+                ? 'bg-orange-400 cursor-not-allowed' 
+                : 'bg-orange-500 hover:bg-orange-600'
+            } text-white`}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Get Free Debt Relief Quote...
+              </div>
+            ) : (
+              'Get Free Debt Relief Quote'
+            )}
           </button>
         </form>
       </div>
